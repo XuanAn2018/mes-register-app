@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MES Auto Register</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 10px; }
+        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        h2 { margin-top: 0; font-size: 1.2rem; color: #333; }
+        label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9rem; color: #555; }
+        input, textarea { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; }
+        button:disabled { background: #ccc; }
+        #log-container { background: #222; color: #0f0; font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; padding: 15px; border-radius: 8px; height: 300px; overflow-y: auto; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>⚙️ Cài đặt</h2>
+        <label>Cloudflare Worker URL:</label>
+        <input type="text" id="workerUrl" placeholder="https://your-worker.user.workers.dev" onchange="saveConfig()">
+        
+        <label>Chuỗi Cookie (dán từ trình duyệt):</label>
+        <input type="text" id="cookie" placeholder="ASP.NET_SessionId=...; .ASPXAUTH=..." onchange="saveConfig()">
+    </div>
+
+    <div class="card">
+        <h2>🚀 Thực thi</h2>
+        <label>Danh sách Package (mỗi package một dòng):</label>
+        <textarea id="packages" rows="5"></textarea>
+        <button id="btnRun" onclick="runProcess()">Bắt đầu xử lý</button>
+    </div>
+
+    <div class="card">
+        <h2>📊 Log kết quả</h2>
+        <div id="log-container"></div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            ['workerUrl', 'cookie'].forEach(id => {
+                const val = localStorage.getItem(id);
+                if (val) document.getElementById(id).value = val;
+            });
+        }
+
+        function saveConfig() {
+            ['workerUrl', 'cookie'].forEach(id => {
+                localStorage.setItem(id, document.getElementById(id).value);
+            });
+        }
+        
+        const logContainer = document.getElementById('log-container');
+        function log(message, color = '#0f0') {
+            const time = new Date().toLocaleTimeString();
+            logContainer.innerHTML += `<span style="color: #888;">[${time}]</span> <span style="color: ${color};">${message}</span>\n`;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        async function runProcess() {
+            const workerUrl = document.getElementById('workerUrl').value.trim();
+            const cookie = document.getElementById('cookie').value.trim();
+            const packages = document.getElementById('packages').value.trim().split('\n').filter(p => p);
+            
+            if (!workerUrl || !cookie || packages.length === 0) {
+                return alert("Vui lòng nhập Worker URL, Cookie và ít nhất một Package.");
+            }
+            
+            const btn = document.getElementById('btnRun');
+            btn.disabled = true;
+            btn.innerText = "Đang xử lý...";
+            logContainer.innerHTML = ""; // Clear log
+
+            for (const pkg of packages) {
+                log(`📦 Bắt đầu xử lý: ${pkg}`, '#fff');
+                try {
+                    const response = await fetch(`${workerUrl}/api/auto-register`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-MES-Cookie': cookie // Gửi cookie qua header tùy chỉnh
+                        },
+                        body: JSON.stringify({ package: pkg })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.ok) {
+                        log(`✅ THÀNH CÔNG: ${result.message}`, '#0f0');
+                    } else {
+                        log(`❌ THẤT BẠI: ${result.message}`, '#f00');
+                    }
+                } catch (e) {
+                    log(`💥 LỖI HỆ THỐNG: ${e.message}`, '#f00');
+                }
+                log('--------------------------------', '#888');
+            }
+            
+            btn.disabled = false;
+            btn.innerText = "Bắt đầu xử lý";
+        }
+    </script>
+</body>
+</html>
