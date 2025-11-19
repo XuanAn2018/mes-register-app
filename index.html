@@ -19,8 +19,8 @@
 
     <div class="card">
         <h2>⚙️ Cài đặt</h2>
-        <label>Cloudflare Worker URL:</label>
-        <input type="text" id="workerUrl" placeholder="https://auto-register.chiscoong-cloudflare-com.workers.dev" onchange="saveConfig()">
+        <label>🔹 Endpoint:</label>
+        <input type="text" id="workerUrl" value="https://auto-register.chiscoong-cloudflare-com.workers.dev" onchange="saveConfig()">
         
         <label>Chuỗi Cookie (dán từ trình duyệt):</label>
         <input type="text" id="cookie" placeholder="ASP.NET_SessionId=...; .ASPXAUTH=..." onchange="saveConfig()">
@@ -40,16 +40,17 @@
 
     <script>
         window.onload = function() {
-            ['workerUrl', 'cookie'].forEach(id => {
-                const val = localStorage.getItem(id);
-                if (val) document.getElementById(id).value = val;
-            });
+            // Load cấu hình đã lưu
+            const savedWorkerUrl = localStorage.getItem('workerUrl');
+            const savedCookie = localStorage.getItem('cookie');
+            
+            if (savedWorkerUrl) document.getElementById('workerUrl').value = savedWorkerUrl;
+            if (savedCookie) document.getElementById('cookie').value = savedCookie;
         }
 
         function saveConfig() {
-            ['workerUrl', 'cookie'].forEach(id => {
-                localStorage.setItem(id, document.getElementById(id).value);
-            });
+            localStorage.setItem('workerUrl', document.getElementById('workerUrl').value);
+            localStorage.setItem('cookie', document.getElementById('cookie').value);
         }
         
         const logContainer = document.getElementById('log-container');
@@ -65,7 +66,7 @@
             const packages = document.getElementById('packages').value.trim().split('\n').filter(p => p);
             
             if (!workerUrl || !cookie || packages.length === 0) {
-                return alert("Vui lòng nhập Worker URL, Cookie và ít nhất một Package.");
+                return alert("Vui lòng nhập Endpoint, Cookie và ít nhất một Package.");
             }
             
             const btn = document.getElementById('btnRun');
