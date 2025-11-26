@@ -5,20 +5,138 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MES Auto Register</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 10px; }
-        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; }
-        h2 { margin-top: 0; font-size: 1.2rem; color: #333; }
-        label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9rem; color: #555; }
-        input, textarea { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; }
-        button:disabled { background: #ccc; }
-        #log-container { background: #222; color: #0f0; font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; padding: 15px; border-radius: 8px; height: 300px; overflow-y: auto; white-space: pre-wrap; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background: #f0f2f5; 
+            margin: 0; 
+            padding: 10px; 
+        }
+        .card { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 12px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+            margin-bottom: 15px; 
+        }
+        h2 { 
+            margin-top: 0; 
+            font-size: 1.2rem; 
+            color: #333; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: 500; 
+            font-size: 0.9rem; 
+            color: #555; 
+        }
+        input, textarea { 
+            width: 100%; 
+            padding: 10px; 
+            margin-bottom: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            box-sizing: border-box; 
+        }
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            background: #28a745; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 1rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+        button:disabled { 
+            background: #ccc; 
+        }
+        #log-container { 
+            background: #222; 
+            color: #0f0; 
+            font-family: 'Courier New', Courier, monospace; 
+            font-size: 0.8rem; 
+            padding: 15px; 
+            border-radius: 8px; 
+            height: 300px; 
+            overflow-y: auto; 
+            white-space: pre-wrap; 
+        }
+        .info-section {
+            background-color: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .info-section h3 {
+            margin-top: 0;
+            color: #0056b3;
+        }
+        .step-guide {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .step-guide ol {
+            padding-left: 20px;
+        }
+        .step-guide li {
+            margin-bottom: 8px;
+        }
+        .highlight {
+            background-color: #fff3cd;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #ffc107;
+            margin: 10px 0;
+        }
+        .copy-btn {
+            width: auto;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            background-color: #17a2b8;
+            margin-left: 10px;
+        }
+        .copy-btn:hover {
+            background-color: #138496;
+        }
+        .package-display-container {
+            margin-top: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #f8f9fa;
+        }
+        .package-display-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .package-display-area {
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
     </style>
 </head>
 <body>
 
     <div class="card">
         <h2>⚙️ Cài đặt</h2>
+        <div class="info-section">
+            <h3>📝 Hướng dẫn cấu hình</h3>
+            <p>Nhập thông tin endpoint và cookie để kết nối với hệ thống MES. Cookie cần có quyền truy cập vào chức năng Auto Register.</p>
+        </div>
         <label>🔹 Endpoint:</label>
         <input type="text" id="workerUrl" value="https://auto-register.chiscoong-cloudflare-com.workers.dev" onchange="saveConfig()">
         
@@ -28,8 +146,28 @@
 
     <div class="card">
         <h2>🚀 Thực thi</h2>
+        
+        <div class="step-guide">
+            <h3>📋 Hướng dẫn sử dụng nhanh</h3>
+            <ol>
+                <li><strong>Bước 1:</strong> Mở công cụ <strong>MES Final Confirm</strong></li>
+                <li><strong>Bước 2:</strong> Quét Package Group để lấy danh sách package con</li>
+                <li><strong>Bước 3:</strong> Copy danh sách package từ phần "Định dạng: mỗi package một dòng"</li>
+                <li><strong>Bước 4:</strong> Dán vào ô bên dưới và nhấn "Bắt đầu xử lý"</li>
+            </ol>
+        </div>
+        
         <label>Danh sách Package (mỗi package một dòng):</label>
-        <textarea id="packages" rows="5"></textarea>
+        <textarea id="packages" rows="5" placeholder="Dán danh sách package từ MES Final Confirm tại đây..."></textarea>
+        
+        <div class="package-display-container" style="display: none;" id="package-display-section">
+            <div class="package-display-header">
+                <label>Xem trước danh sách package</label>
+                <button class="copy-btn" onclick="copyPackages()">📋 Copy</button>
+            </div>
+            <div class="package-display-area" id="packages-preview"></div>
+        </div>
+        
         <button id="btnRun" onclick="runProcess()">Bắt đầu xử lý</button>
     </div>
 
@@ -46,11 +184,40 @@
             
             if (savedWorkerUrl) document.getElementById('workerUrl').value = savedWorkerUrl;
             if (savedCookie) document.getElementById('cookie').value = savedCookie;
+            
+            // Cập nhật preview khi nhập package
+            document.getElementById('packages').addEventListener('input', updatePackagePreview);
         }
 
         function saveConfig() {
             localStorage.setItem('workerUrl', document.getElementById('workerUrl').value);
             localStorage.setItem('cookie', document.getElementById('cookie').value);
+        }
+        
+        function updatePackagePreview() {
+            const packages = document.getElementById('packages').value.trim();
+            const preview = document.getElementById('packages-preview');
+            const displaySection = document.getElementById('package-display-section');
+            
+            if (packages) {
+                preview.textContent = packages;
+                displaySection.style.display = 'block';
+            } else {
+                displaySection.style.display = 'none';
+            }
+        }
+        
+        function copyPackages() {
+            const packages = document.getElementById('packages').value.trim();
+            if (packages) {
+                navigator.clipboard.writeText(packages)
+                    .then(() => {
+                        log('✅ Đã copy danh sách package vào clipboard', '#0f0');
+                    })
+                    .catch(err => {
+                        log(`❌ Lỗi khi copy: ${err}`, '#f00');
+                    });
+            }
         }
         
         const logContainer = document.getElementById('log-container');
@@ -73,9 +240,18 @@
             btn.disabled = true;
             btn.innerText = "Đang xử lý...";
             logContainer.innerHTML = ""; // Clear log
+            
+            log(`🚀 Bắt đầu xử lý ${packages.length} package...`, '#ff0');
+            log('--------------------------------', '#888');
+
+            let successCount = 0;
+            let errorCount = 0;
 
             for (const pkg of packages) {
-                log(`📦 Bắt đầu xử lý: ${pkg}`, '#fff');
+                const cleanPkg = pkg.trim();
+                if (!cleanPkg) continue;
+                
+                log(`📦 Đang xử lý: ${cleanPkg}`, '#fff');
                 try {
                     const response = await fetch(`${workerUrl}/api/auto-register`, {
                         method: 'POST',
@@ -83,21 +259,27 @@
                             'Content-Type': 'application/json',
                             'X-MES-Cookie': cookie // Gửi cookie qua header tùy chỉnh
                         },
-                        body: JSON.stringify({ package: pkg })
+                        body: JSON.stringify({ package: cleanPkg })
                     });
                     
                     const result = await response.json();
                     
                     if (result.ok) {
                         log(`✅ THÀNH CÔNG: ${result.message}`, '#0f0');
+                        successCount++;
                     } else {
                         log(`❌ THẤT BẠI: ${result.message}`, '#f00');
+                        errorCount++;
                     }
                 } catch (e) {
                     log(`💥 LỖI HỆ THỐNG: ${e.message}`, '#f00');
+                    errorCount++;
                 }
                 log('--------------------------------', '#888');
             }
+            
+            // Tổng kết
+            log(`🎉 HOÀN TẤT: ${successCount} thành công, ${errorCount} thất bại`, successCount > 0 ? '#0f0' : '#f00');
             
             btn.disabled = false;
             btn.innerText = "Bắt đầu xử lý";
