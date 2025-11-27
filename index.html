@@ -40,7 +40,7 @@
             box-sizing: border-box; 
         }
         button { 
-            width: 100%; 
+            width: 100%;
             padding: 12px; 
             background: #28a745; 
             color: white; 
@@ -89,43 +89,40 @@
         .step-guide li {
             margin-bottom: 8px;
         }
-        .highlight {
-            background-color: #fff3cd;
-            padding: 10px;
-            border-radius: 4px;
-            border-left: 4px solid #ffc107;
-            margin: 10px 0;
+        .cookie-status {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
-        .copy-btn {
-            width: auto;
-            padding: 5px 10px;
-            font-size: 0.8rem;
-            background-color: #17a2b8;
-            margin-left: 10px;
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
         }
-        .copy-btn:hover {
-            background-color: #138496;
+        .status-valid {
+            background-color: #28a745;
         }
-        .package-display-container {
-            margin-top: 15px;
-            border: 1px solid #ddd;
+        .status-invalid {
+            background-color: #dc3545;
+        }
+        .cookie-hint {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
             border-radius: 8px;
             padding: 10px;
-            background-color: #f8f9fa;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #6c757d;
         }
-        .package-display-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .package-display-area {
-            max-height: 150px;
-            overflow-y: auto;
-            padding: 10px;
-            background-color: white;
-            border-radius: 4px;
-            border: 1px solid #ddd;
+        .cookie-hint code {
+            background-color: #e9ecef;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
         }
     </style>
 </head>
@@ -134,14 +131,23 @@
     <div class="card">
         <h2>⚙️ Cài đặt</h2>
         <div class="info-section">
-            <h3>📝 Hướng dẫn cấu hình</h3>
-            <p>Nhập thông tin endpoint và cookie để kết nối với hệ thống MES. Cookie cần có quyền truy cập vào chức năng Auto Register.</p>
+            <h3>📝 Hướng dẫn lấy Cookie</h3>
+            <p>Mở MES → F12 → Network → Copy giá trị header <code>Cookie</code> từ bất kỳ request nào.</p>
+            <p><strong>Sử dụng cùng cookie từ MES Final Confirm</strong></p>
         </div>
-        <label>🔹 Endpoint:</label>
-        <input type="text" id="workerUrl" value="https://auto-register.chiscoong-cloudflare-com.workers.dev" onchange="saveConfig()">
         
-        <label>Chuỗi Cookie (dán từ trình duyệt):</label>
-        <input type="text" id="cookie" placeholder="ASP.NET_SessionId=...; .ASPXAUTH=..." onchange="saveConfig()">
+        <label>Chuỗi Cookie Header:</label>
+        <input type="text" id="cookie" placeholder="ASP.NET_SessionId=...; .ASPXAUTH=..." oninput="checkCookieValidity()">
+        
+        <div class="cookie-status" id="cookieStatus">
+            <span class="status-indicator status-invalid"></span>
+            <span>Cookie chưa được nhập</span>
+        </div>
+        
+        <div class="cookie-hint">
+            <strong>📋 Định dạng chuẩn:</strong><br>
+            <code>ASP.NET_SessionId=abc123; .ASPXAUTH=xyz789</code>
+        </div>
     </div>
 
     <div class="card">
@@ -160,14 +166,6 @@
         <label>Danh sách Package (mỗi package một dòng):</label>
         <textarea id="packages" rows="5" placeholder="Dán danh sách package từ MES Final Confirm tại đây..."></textarea>
         
-        <div class="package-display-container" style="display: none;" id="package-display-section">
-            <div class="package-display-header">
-                <label>Xem trước danh sách package</label>
-                <button class="copy-btn" onclick="copyPackages()">📋 Copy</button>
-            </div>
-            <div class="package-display-area" id="packages-preview"></div>
-        </div>
-        
         <button id="btnRun" onclick="runProcess()">Bắt đầu xử lý</button>
     </div>
 
@@ -177,46 +175,42 @@
     </div>
 
     <script>
+        // Endpoint cố định
+        const WORKER_URL = "https://auto-register.chiscoong-cloudflare-com.workers.dev";
+
         window.onload = function() {
-            // Load cấu hình đã lưu
-            const savedWorkerUrl = localStorage.getItem('workerUrl');
-            const savedCookie = localStorage.getItem('cookie');
+            // Load cookie từ MES Final Confirm (nếu có)
+            const savedCookie = localStorage.getItem('cookie') || localStorage.getItem('cookie_mes_final');
+            if (savedCookie) {
+                document.getElementById('cookie').value = savedCookie;
+                localStorage.setItem('cookie', savedCookie);
+                checkCookieValidity();
+            }
             
-            if (savedWorkerUrl) document.getElementById('workerUrl').value = savedWorkerUrl;
-            if (savedCookie) document.getElementById('cookie').value = savedCookie;
-            
-            // Cập nhật preview khi nhập package
-            document.getElementById('packages').addEventListener('input', updatePackagePreview);
+            log('🔧 MES Auto Register đã sẵn sàng', '#0ff');
+            log('💡 Sử dụng cùng cookie từ MES Final Confirm', '#ff0');
         }
 
-        function saveConfig() {
-            localStorage.setItem('workerUrl', document.getElementById('workerUrl').value);
-            localStorage.setItem('cookie', document.getElementById('cookie').value);
-        }
-        
-        function updatePackagePreview() {
-            const packages = document.getElementById('packages').value.trim();
-            const preview = document.getElementById('packages-preview');
-            const displaySection = document.getElementById('package-display-section');
+        function checkCookieValidity() {
+            const cookie = document.getElementById('cookie').value.trim();
+            const statusElement = document.getElementById('cookieStatus');
+            const indicator = statusElement.querySelector('.status-indicator');
+            const text = statusElement.querySelector('span:last-child');
             
-            if (packages) {
-                preview.textContent = packages;
-                displaySection.style.display = 'block';
-            } else {
-                displaySection.style.display = 'none';
+            if (cookie) {
+                localStorage.setItem('cookie', cookie);
+                localStorage.setItem('cookie_mes_final', cookie);
             }
-        }
-        
-        function copyPackages() {
-            const packages = document.getElementById('packages').value.trim();
-            if (packages) {
-                navigator.clipboard.writeText(packages)
-                    .then(() => {
-                        log('✅ Đã copy danh sách package vào clipboard', '#0f0');
-                    })
-                    .catch(err => {
-                        log(`❌ Lỗi khi copy: ${err}`, '#f00');
-                    });
+            
+            if (cookie.length === 0) {
+                indicator.className = 'status-indicator status-invalid';
+                text.textContent = 'Cookie chưa được nhập';
+            } else if (cookie.length < 10) {
+                indicator.className = 'status-indicator status-invalid';
+                text.textContent = 'Cookie quá ngắn, có thể không hợp lệ';
+            } else {
+                indicator.className = 'status-indicator status-valid';
+                text.textContent = '🟢 Cookie hợp lệ';
             }
         }
         
@@ -228,20 +222,20 @@
         }
 
         async function runProcess() {
-            const workerUrl = document.getElementById('workerUrl').value.trim();
             const cookie = document.getElementById('cookie').value.trim();
             const packages = document.getElementById('packages').value.trim().split('\n').filter(p => p);
             
-            if (!workerUrl || !cookie || packages.length === 0) {
-                return alert("Vui lòng nhập Endpoint, Cookie và ít nhất một Package.");
+            if (!cookie || packages.length === 0) {
+                return alert("Vui lòng nhập Cookie và ít nhất một Package.");
             }
             
             const btn = document.getElementById('btnRun');
             btn.disabled = true;
             btn.innerText = "Đang xử lý...";
-            logContainer.innerHTML = ""; // Clear log
+            logContainer.innerHTML = "";
             
             log(`🚀 Bắt đầu xử lý ${packages.length} package...`, '#ff0');
+            log(`🔗 Endpoint: ${WORKER_URL}`, '#0ff');
             log('--------------------------------', '#888');
 
             let successCount = 0;
@@ -253,11 +247,11 @@
                 
                 log(`📦 Đang xử lý: ${cleanPkg}`, '#fff');
                 try {
-                    const response = await fetch(`${workerUrl}/api/auto-register`, {
+                    const response = await fetch(`${WORKER_URL}/api/auto-register`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-MES-Cookie': cookie // Gửi cookie qua header tùy chỉnh
+                            'X-MES-Cookie': cookie
                         },
                         body: JSON.stringify({ package: cleanPkg })
                     });
@@ -278,8 +272,8 @@
                 log('--------------------------------', '#888');
             }
             
-            // Tổng kết
-            log(`🎉 HOÀN TẤT: ${successCount} thành công, ${errorCount} thất bại`, successCount > 0 ? '#0f0' : '#f00');
+            const summaryColor = successCount > 0 ? '#0f0' : '#f00';
+            log(`🎉 HOÀN TẤT: ${successCount} thành công, ${errorCount} thất bại`, summaryColor);
             
             btn.disabled = false;
             btn.innerText = "Bắt đầu xử lý";
