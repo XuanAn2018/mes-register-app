@@ -5,682 +5,563 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MES Package Management System</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* === CÁC THIẾT LẬP CƠ BẢN === */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
             padding: 20px;
+            color: #333;
         }
         
         .container {
             max-width: 1400px;
             margin: 0 auto;
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 95vh; /* Cố định chiều cao để scroll nội dung bên trong */
         }
         
+        /* === HEADER === */
         .header {
-            background: linear-gradient(135deg, #2c3e50, #34495e);
+            background: #2c3e50;
             color: white;
-            padding: 25px;
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 2.2em;
-            margin-bottom: 5px;
-        }
-        
-        .header p {
-            opacity: 0.9;
-            font-size: 1em;
-        }
-        
-        .content {
-            padding: 25px;
-        }
-        
-        .config-section {
-            background: #f8f9fa;
             padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            border-left: 5px solid #3498db;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .header h1 { font-size: 1.5em; display: flex; align-items: center; gap: 10px; }
+        .header-meta { font-size: 0.9em; opacity: 0.8; }
+        
+        /* === NỘI DUNG CHÍNH (SCROLLABLE) === */
+        .content {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        /* === CONFIG SECTION === */
+        .config-section {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            margin-bottom: 20px;
         }
         
         .config-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .input-group {
-            margin-bottom: 15px;
+            margin-top: 15px;
         }
         
         .input-group label {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
             font-weight: 600;
-            color: #2c3e50;
-            font-size: 14px;
+            color: #555;
+            font-size: 13px;
         }
         
         .input-group input, .input-group textarea {
             width: 100%;
-            padding: 10px;
-            border: 2px solid #e0e0e0;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
             border-radius: 6px;
             font-size: 14px;
-            transition: border-color 0.3s;
+            transition: all 0.2s;
         }
         
         .input-group input:focus, .input-group textarea:focus {
-            outline: none;
             border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            outline: none;
         }
         
-        .input-group textarea {
-            height: 70px;
-            resize: vertical;
-            font-family: monospace;
-            font-size: 12px;
-        }
-        
-        .required::after {
-            content: " *";
-            color: #e74c3c;
-        }
+        .input-group textarea { height: 60px; resize: vertical; font-family: monospace; }
         
         .button-group {
-            display: flex;
-            gap: 15px;
-            margin: 20px 0;
-            flex-wrap: wrap;
+            display: flex; gap: 10px; margin-top: 20px;
         }
         
         button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            padding: 10px 18px; border: none; border-radius: 6px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; display: flex; align-items: center; gap: 8px;
         }
         
-        button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
+        button:hover { filter: brightness(110%); transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
         
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        .btn-primary {
-            background: #3498db;
-            color: white;
-        }
-        
-        .btn-success {
-            background: #27ae60;
-            color: white;
-        }
-        
-        .btn-warning {
-            background: #f39c12;
-            color: white;
-        }
-        
-        .btn-info {
-            background: #17a2b8;
-            color: white;
-        }
-        
-        .btn-secondary {
-            background: #95a5a6;
-            color: white;
-        }
-        
-        .btn-export {
-            background: #9b59b6;
-            color: white;
-        }
-        
-        .breadcrumb {
-            background: #ecf0f1;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-        
-        .breadcrumb span {
-            color: #7f8c8d;
-        }
-        
-        .breadcrumb .active {
-            color: #2c3e50;
-            font-weight: 600;
-        }
-        
-        .breadcrumb .separator {
-            margin: 0 10px;
-            color: #bdc3c7;
-        }
-        
-        .table-container {
+        .btn-primary { background: #3498db; color: white; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-info { background: #17a2b8; color: white; }
+        .btn-secondary { background: #95a5a6; color: white; }
+        .btn-export { background: #8e44ad; color: white; }
+
+        /* === BẢNG DỮ LIỆU (TABLE) === */
+        .table-wrapper {
             background: white;
             border-radius: 8px;
+            border: 1px solid #eee;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            max-height: 600px;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            max-height: 600px; /* Chiều cao cố định cho bảng để scroll */
+        }
+
+        .results-toolbar {
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-scroll {
+            overflow: auto;
+            flex: 1;
         }
         
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate; /* Quan trọng cho sticky header */
+            border-spacing: 0;
             font-size: 13px;
         }
         
         th {
-            background: #34495e;
-            color: white;
-            padding: 12px 8px;
+            background: #f1f2f6;
+            color: #2c3e50;
+            padding: 12px 10px;
             text-align: left;
-            font-weight: 600;
+            font-weight: 700;
             position: sticky;
             top: 0;
+            z-index: 10;
+            border-bottom: 2px solid #ddd;
+            user-select: none;
+        }
+
+        /* Style cho cột có thể sắp xếp */
+        th.sortable {
+            cursor: pointer;
+            transition: background 0.2s;
+            padding-right: 25px; /* Chừa chỗ cho icon */
+            position: relative;
+        }
+
+        th.sortable:hover {
+            background: #e2e6ea;
+            color: #3498db;
+        }
+
+        /* Icon sắp xếp */
+        th.sortable::after {
+            content: '↕';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.3;
+            font-size: 11px;
+        }
+
+        th.sortable.asc::after {
+            content: '▲';
+            opacity: 1;
+            color: #3498db;
+        }
+
+        th.sortable.desc::after {
+            content: '▼';
+            opacity: 1;
+            color: #3498db;
         }
         
         td {
-            padding: 10px 8px;
-            border-bottom: 1px solid #ecf0f1;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
         }
         
-        tr:hover {
-            background: #f8f9fa;
+        tr:nth-child(even) { background-color: #fcfcfc; }
+        tr:hover { background-color: #f1f8ff; }
+        
+        /* === UI CÁC TRẠNG THÁI === */
+        .status-badge {
+            padding: 5px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
+        .status-CF { background: #d4edda; color: #155724; } /* Confirmed */
+        .status-RO { background: #fff3cd; color: #856404; } /* Requested */
+        .status-DR { background: #e2e3e5; color: #383d41; } /* Draft */
         
         .clickable {
-            color: #3498db;
-            cursor: pointer;
-            text-decoration: underline;
-            font-weight: 500;
+            color: #3498db; cursor: pointer; text-decoration: none; font-weight: 600;
         }
+        .clickable:hover { text-decoration: underline; color: #2980b9; }
         
-        .clickable:hover {
-            color: #2980b9;
-        }
-        
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-        
-        .status-CF {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .status-RO {
-            background: #fff3cd;
-            color: #856404;
-        }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 30px;
-        }
-        
+        .loading { display: none; text-align: center; padding: 40px; }
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 2s linear infinite;
-            margin: 0 auto 15px;
+            border: 4px solid #f3f3f3; border-top: 4px solid #3498db;
+            border-radius: 50%; width: 40px; height: 40px;
+            animation: spin 1s linear infinite; margin: 0 auto 15px;
         }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .hidden { display: none; }
+        .text-right { text-align: right; }
+        .font-mono { font-family: 'Consolas', monospace; }
         
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .copy-icon-btn {
+            background: none; border: none; color: #95a5a6;
+            cursor: pointer; padding: 4px; border-radius: 4px;
         }
-        
-        .results-info {
-            background: #e8f4fd;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
-        
-        .cookie-note {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 6px;
-            padding: 12px;
-            margin-top: 15px;
-            font-size: 12px;
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        .back-button {
-            margin-bottom: 15px;
-        }
-        
-        .header-with-copy {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .copy-btn {
-            background: none;
-            border: none;
-            color: #3498db;
-            cursor: pointer;
-            padding: 2px 6px;
-            font-size: 12px;
-            border-radius: 4px;
-            transition: background 0.3s;
-        }
-        
-        .copy-btn:hover {
-            background: #ecf0f1;
-        }
-        
-        .export-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .small-btn {
-            padding: 8px 12px;
-            font-size: 12px;
-        }
+        .copy-icon-btn:hover { color: #3498db; background: rgba(52, 152, 219, 0.1); }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏭 MES Package Management</h1>
-            <p>Quản lý và theo dõi package MES system</p>
+            <h1>🏭 MES Package Manager</h1>
+            <div class="header-meta">Quản lý và theo dõi tiến độ sản xuất</div>
         </div>
         
         <div class="content">
-            <!-- Breadcrumb Navigation -->
-            <div class="breadcrumb" id="breadcrumb">
-                <span class="active">Tìm kiếm Package</span>
+            <!-- Breadcrumb -->
+            <div id="breadcrumb" style="margin-bottom: 15px; font-size: 14px; color: #666;">
+                <span style="font-weight: bold; color: #2c3e50;">Tìm kiếm Package</span>
             </div>
 
             <!-- Configuration Section -->
             <div class="config-section" id="configSection">
-                <h2>🔍 Tìm kiếm Package Chính</h2>
-                
                 <div class="input-group">
-                    <label for="cookieInput" class="required">MES Cookie:</label>
-                    <textarea id="cookieInput" placeholder="Dán cookie từ MES system..."></textarea>
-                    <small style="color: #666; font-size: 12px;">Lấy cookie từ MES system qua Developer Tools (F12)</small>
+                    <label for="cookieInput" style="color: #e74c3c;">MES Cookie :</label>
+                    <textarea id="cookieInput" placeholder="Dán cookie từ F12 -> Network -> Request Header..."></textarea>
                 </div>
 
                 <div class="config-grid">
-                    <div class="input-group">
-                        <label for="factory" class="required">Factory:</label>
-                        <input type="text" id="factory" value="P2C1">
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="buyer" class="required">Buyer:</label>
-                        <input type="text" id="buyer" value="ONR">
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="aoNumber">AO Number:</label>
-                        <input type="text" id="aoNumber" value="0141">
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="startDate" class="required">Start Date:</label>
-                        <input type="date" id="startDate">
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="endDate" class="required">End Date:</label>
-                        <input type="date" id="endDate" readonly>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="styleCode">Style Code:</label>
-                        <input type="text" id="styleCode">
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="buyerPO">Buyer PO:</label>
-                        <input type="text" id="buyerPO">
-                    </div>
+                    <div class="input-group"><label>Factory</label><input type="text" id="factory" value="P2C1"></div>
+                    <div class="input-group"><label>Buyer</label><input type="text" id="buyer" value="ONR"></div>
+                    <div class="input-group"><label>AO Number</label><input type="text" id="aoNumber" value="0141"></div>
+                    <div class="input-group"><label>Start Date</label><input type="date" id="startDate"></div>
+                    <div class="input-group"><label>End Date</label><input type="date" id="endDate"></div>
+                    <div class="input-group"><label>Style Code</label><input type="text" id="styleCode"></div>
+                    <div class="input-group"><label>Buyer PO</label><input type="text" id="buyerPO"></div>
                 </div>
 
                 <div class="button-group">
-                    <button class="btn-primary" onclick="testHealth()">
-                        <span>🩺</span> Kiểm tra trạng thái worker
-                    </button>
-                    <button class="btn-success" onclick="getGroupPackages()">
-                        <span>📦</span> Lấy danh sách package chính
-                    </button>
+                    <button class="btn-primary" onclick="testHealth()">🩺 Kiểm tra Server</button>
+                    <button class="btn-success" onclick="getGroupPackages()">📦 Tìm kiếm Package</button>
                 </div>
             </div>
 
-            <!-- Loading Indicator -->
+            <!-- Loading -->
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p>Đang tải dữ liệu...</p>
+                <p>Đang tải dữ liệu, vui lòng chờ...</p>
             </div>
 
             <!-- Group Packages Results -->
             <div id="groupPackagesResults" class="hidden">
-                <div class="export-buttons">
-                    <button class="btn-export small-btn" onclick="exportGroupPackagesCSV()">
-                        <span>📊</span> Xuất CSV Package Groups
-                    </button>
-                </div>
-                <div class="results-info">
-                    📊 Tìm thấy <strong id="resultCount">0</strong> package chính
-                </div>
-                <div class="table-container">
-                    <table id="groupPackagesTable">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <div class="header-with-copy">
-                                        Package Group
-                                        <button class="copy-btn" onclick="copyAllPackageGroups()" title="Copy tất cả Package Groups">
-                                            📋
-                                        </button>
-                                    </div>
-                                </th>
-                                <th>Style Code</th>
-                                <th>Buyer PO</th>
-                                <th>Target Qty</th>
-                                <th>Status</th>
-                                <th>Plan Start Date</th>
-                                <th>Plan End Date</th>
-                                <th>Style Colorways</th>
-                            </tr>
-                        </thead>
-                        <tbody id="groupPackagesBody">
-                            <!-- Data will be populated here -->
-                        </tbody>
-                    </table>
+                <div class="table-wrapper">
+                    <div class="results-toolbar">
+                        <div>
+                            Tìm thấy <strong id="resultCount" style="color: #3498db;">0</strong> packages
+                        </div>
+                        <div class="button-group" style="margin-top: 0;">
+                            <button class="btn-info small-btn" onclick="copyAllPackageGroups()">📋 Copy All Groups</button>
+                            <button class="btn-export small-btn" onclick="exportGroupPackagesCSV()">📊 Xuất CSV</button>
+                        </div>
+                    </div>
+                    <div class="table-scroll">
+                        <table id="groupPackagesTable">
+                            <thead>
+                                <tr>
+                                    <th>Package Group</th>
+                                    <th>Style Code</th>
+                                    <th>Buyer PO</th>
+                                    <!-- CÁC CỘT CÓ THỂ SẮP XẾP -->
+                                    <th class="sortable text-right" onclick="sortGroupTable('TargetQty', 'number')">Target Qty</th>
+                                    <th class="sortable" onclick="sortGroupTable('Status', 'string')">Status</th>
+                                    <th class="sortable" onclick="sortGroupTable('MesPlnStartDate', 'date')">Plan Start Date</th>
+                                    <th class="sortable" onclick="sortGroupTable('MesPlnEndDate', 'date')">Plan End Date</th>
+                                    <th class="sortable" onclick="sortGroupTable('StyleColorways', 'string')">Style Colorways</th>
+                                </tr>
+                            </thead>
+                            <tbody id="groupPackagesBody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <!-- MES Packages Results -->
             <div id="mesPackagesResults" class="hidden">
-                <div class="back-button">
-                    <button class="btn-secondary" onclick="backToGroupPackages()">
-                        <span>←</span> Quay lại danh sách package chính
-                    </button>
-                </div>
-                <div class="export-buttons">
-                    <button class="btn-export small-btn" onclick="exportMxPackagesCSV()">
-                        <span>📊</span> Xuất CSV Mx Packages
-                    </button>
-                </div>
-                <div class="results-info">
-                    📋 MES Packages của: <strong id="currentPackageGroup"></strong>
-                    <button class="copy-btn" onclick="copyAllMxPackages()" title="Copy tất cả Mx Packages">
-                        📋 Copy Mx Packages
-                    </button>
-                </div>
-                <div class="table-container">
-                    <table id="mesPackagesTable">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <div class="header-with-copy">
-                                        MxPackage
-                                        <button class="copy-btn" onclick="copyAllMxPackages()" title="Copy tất cả Mx Packages">
-                                            📋
-                                        </button>
-                                    </div>
-                                </th>
-                                <th>Line Name</th>
-                                <th>MxStatus</th>
-                                <th>PlnStartDate</th>
-                                <th>PlnEndDate</th>
-                                <th>FinishedQty</th>
-                                <th>MxTarget</th>
-                                <th>WorkingHours</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="mesPackagesBody">
-                            <!-- Data will be populated here -->
-                        </tbody>
-                    </table>
+                <div class="table-wrapper">
+                    <div class="results-toolbar">
+                        <div>
+                            <button class="btn-secondary small-btn" onclick="backToGroupPackages()">← Quay lại</button>
+                            <span style="margin-left: 15px;">Chi tiết: <strong id="currentPackageGroup"></strong></span>
+                        </div>
+                        <div class="button-group" style="margin-top: 0;">
+                            <button class="btn-info small-btn" onclick="copyAllMxPackages()">📋 Copy All MxPkg</button>
+                            <button class="btn-export small-btn" onclick="exportMxPackagesCSV()">📊 Xuất CSV</button>
+                        </div>
+                    </div>
+                    <div class="table-scroll">
+                        <table id="mesPackagesTable">
+                            <thead>
+                                <tr>
+                                    <th>MxPackage</th>
+                                    <th>Line Name</th>
+                                    <th>Status</th>
+                                    <th class="sortable" onclick="sortMesTable('PlnStartDate', 'date')">Start Date</th>
+                                    <th class="sortable" onclick="sortMesTable('PlnEndDate', 'date')">End Date</th>
+                                    <th class="text-right">Finished</th>
+                                    <th class="text-right">Target</th>
+                                    <th class="text-right">Hours</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mesPackagesBody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <!-- Pro Packages Results -->
             <div id="proPackagesResults" class="hidden">
-                <div class="back-button">
-                    <button class="btn-secondary" onclick="backToMxPackages()">
-                        <span>←</span> Quay lại MES Packages
-                    </button>
-                </div>
-                <div class="results-info">
-                    🔧 Package con của: <strong id="currentProPackage"></strong>
-                </div>
-                <div class="table-container">
-                    <table id="proPackagesTable">
-                        <thead>
-                            <tr>
-                                <th>PPackage</th>
-                                <th>SeqNo</th>
-                                <th>OrdQty</th>
-                                <th>PlanQty</th>
-                                <th>CompletedQty</th>
-                                <th>Line No</th>
-                                <th>QCO Week</th>
-                                <th>Destination</th>
-                            </tr>
-                        </thead>
-                        <tbody id="proPackagesBody">
-                            <!-- Data will be populated here -->
-                        </tbody>
-                    </table>
+                <div class="table-wrapper">
+                    <div class="results-toolbar">
+                        <div>
+                            <button class="btn-secondary small-btn" onclick="backToMxPackages()">← Quay lại MES Pkg</button>
+                            <span style="margin-left: 15px;">Pro Pkg của: <strong id="currentProPackage"></strong></span>
+                        </div>
+                    </div>
+                    <div class="table-scroll">
+                        <table id="proPackagesTable">
+                            <thead>
+                                <tr>
+                                    <th>PPackage</th>
+                                    <th>Seq</th>
+                                    <th class="text-right">Ord Qty</th>
+                                    <th class="text-right">Plan Qty</th>
+                                    <th class="text-right">Completed</th>
+                                    <th>Line No</th>
+                                    <th>QCO Week</th>
+                                    <th>Dest</th>
+                                </tr>
+                            </thead>
+                            <tbody id="proPackagesBody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             
-            <div class="cookie-note">
-                <strong>💡 Hướng dẫn lấy Cookie:</strong><br>
-                1. Mở MES system trong browser và đăng nhập<br>
-                2. Nhấn F12 → Tab Network<br>
-                3. Tải lại trang MES → Tìm request tới mespk2.pungkookvn.com<br>
-                4. Copy giá trị header "Cookie" từ request đó
-            </div>
         </div>
     </div>
 
     <script>
-        // Worker URL (hidden from user)
         const WORKER_URL = "https://mes-csv-export.chiscoong-cloudflare-com.workers.dev";
         
-        // Current state and data storage
         let currentState = 'group';
         let currentPackageGroup = '';
-        let currentProPackage = '';
-        let allGroupPackages = [];
-        let allMxPackages = [];
-
-        // DOM Elements
-        const elements = {
-            breadcrumb: document.getElementById('breadcrumb'),
-            configSection: document.getElementById('configSection'),
-            loading: document.getElementById('loading'),
-            groupPackagesResults: document.getElementById('groupPackagesResults'),
-            proPackagesResults: document.getElementById('proPackagesResults'),
-            mesPackagesResults: document.getElementById('mesPackagesResults'),
-            groupPackagesBody: document.getElementById('groupPackagesBody'),
-            proPackagesBody: document.getElementById('proPackagesBody'),
-            mesPackagesBody: document.getElementById('mesPackagesBody'),
-            resultCount: document.getElementById('resultCount'),
-            currentPackageGroup: document.getElementById('currentPackageGroup'),
-            currentProPackage: document.getElementById('currentProPackage')
+        let allGroupPackages = []; // Dữ liệu gốc
+        let allMxPackages = [];    // Dữ liệu gốc
+        
+        // Trạng thái sắp xếp
+        let sortState = {
+            column: null,
+            direction: 'asc' // 'asc' hoặc 'desc'
         };
 
-        // Initialize date fields
+        // --- KHỞI TẠO VÀ COOKIE ---
+        
+        // Hàm lưu cookie
+        function saveCookie() {
+            const cookieVal = document.getElementById('cookieInput').value;
+            localStorage.setItem('mes_cookie', cookieVal);
+        }
+
+        // Hàm load cookie
+        function loadCookie() {
+            const savedCookie = localStorage.getItem('mes_cookie');
+            if(savedCookie) {
+                document.getElementById('cookieInput').value = savedCookie;
+            }
+        }
+
+        // Khởi tạo ngày tháng
         function initializeDates() {
             const today = new Date();
             const startDate = new Date(today);
-            startDate.setMonth(today.getMonth() - 1); // Default to 1 month ago
+            startDate.setMonth(today.getMonth() - 1);
             
             const endDate = new Date(startDate);
-            endDate.setMonth(startDate.getMonth() + 6); // +6 months from start
+            endDate.setMonth(startDate.getMonth() + 6);
             
             document.getElementById('startDate').valueAsDate = startDate;
             document.getElementById('endDate').valueAsDate = endDate;
             
-            // Update end date when start date changes
             document.getElementById('startDate').addEventListener('change', function() {
                 const start = new Date(this.value);
                 const end = new Date(start);
                 end.setMonth(start.getMonth() + 6);
                 document.getElementById('endDate').valueAsDate = end;
             });
+
+            // Lắng nghe sự kiện nhập cookie để lưu
+            document.getElementById('cookieInput').addEventListener('input', saveCookie);
+            loadCookie();
         }
 
-        // Update breadcrumb
-        function updateBreadcrumb(state, packageGroup = '', proPackage = '') {
-            let breadcrumbHTML = '';
-            
-            if (state === 'group') {
-                breadcrumbHTML = '<span class="active">Tìm kiếm Package</span>';
-            } else if (state === 'mes') {
-                breadcrumbHTML = `
-                    <span class="clickable" onclick="backToGroupPackages()">Tìm kiếm Package</span>
-                    <span class="separator">›</span>
-                    <span class="active">MES Packages: ${packageGroup}</span>
-                `;
-            } else if (state === 'pro') {
-                breadcrumbHTML = `
-                    <span class="clickable" onclick="backToGroupPackages()">Tìm kiếm Package</span>
-                    <span class="separator">›</span>
-                    <span class="clickable" onclick="backToMxPackages()">MES Packages: ${packageGroup}</span>
-                    <span class="separator">›</span>
-                    <span class="active">Pro Package: ${proPackage}</span>
-                `;
+        // --- HÀM XỬ LÝ SẮP XẾP (SORTING) ---
+
+        /**
+         * Hàm sắp xếp chung cho Package Group
+         * @param {string} column Tên trường dữ liệu (key trong object)
+         * @param {string} type Loại dữ liệu: 'string', 'number', 'date'
+         */
+        function sortGroupTable(column, type) {
+            handleSort(allGroupPackages, column, type, 'groupPackagesTable', displayGroupPackages);
+        }
+
+        /**
+         * Hàm sắp xếp chung cho MES Package
+         */
+        function sortMesTable(column, type) {
+            handleSort(allMxPackages, column, type, 'mesPackagesTable', (data) => displayMxPackages(data, currentPackageGroup));
+        }
+
+        /**
+         * Logic sắp xếp cốt lõi
+         */
+        function handleSort(dataArray, column, type, tableId, renderFunction) {
+            // Xác định hướng sắp xếp
+            if (sortState.column === column) {
+                // Nếu đang click lại cột cũ, đảo ngược hướng
+                sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                // Nếu click cột mới
+                // Mặc định Ngày tháng: Mới nhất trước (desc)
+                // Số và Chữ: Bé đến lớn (asc)
+                if (type === 'date') {
+                    sortState.direction = 'desc';
+                } else {
+                    sortState.direction = 'asc';
+                }
+                sortState.column = column;
             }
-            
-            elements.breadcrumb.innerHTML = breadcrumbHTML;
+
+            // Cập nhật UI Header (Mũi tên)
+            updateSortIcons(tableId, column, sortState.direction);
+
+            // Thực hiện sắp xếp mảng dữ liệu
+            dataArray.sort((a, b) => {
+                let valA = a[column];
+                let valB = b[column];
+
+                // Xử lý null/undefined
+                if (valA == null) valA = "";
+                if (valB == null) valB = "";
+
+                let comparison = 0;
+
+                switch (type) {
+                    case 'number':
+                        valA = parseFloat(valA) || 0;
+                        valB = parseFloat(valB) || 0;
+                        comparison = valA - valB;
+                        break;
+                    case 'date':
+                        // Giả sử định dạng YYYY-MM-DD hoặc YYYYMMDD
+                        const dateA = new Date(valA.toString().replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3'));
+                        const dateB = new Date(valB.toString().replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3'));
+                        comparison = dateA - dateB;
+                        break;
+                    default: // string
+                        valA = valA.toString().toLowerCase();
+                        valB = valB.toString().toLowerCase();
+                        if (valA < valB) comparison = -1;
+                        if (valA > valB) comparison = 1;
+                        break;
+                }
+
+                return sortState.direction === 'asc' ? comparison : -comparison;
+            });
+
+            // Render lại bảng
+            renderFunction(dataArray);
         }
 
-        // Show/hide sections
-        function showSection(section) {
-            elements.configSection.classList.add('hidden');
-            elements.groupPackagesResults.classList.add('hidden');
-            elements.proPackagesResults.classList.add('hidden');
-            elements.mesPackagesResults.classList.add('hidden');
-            
-            if (section === 'config') {
-                elements.configSection.classList.remove('hidden');
-            } else if (section === 'group') {
-                elements.groupPackagesResults.classList.remove('hidden');
-            } else if (section === 'pro') {
-                elements.proPackagesResults.classList.remove('hidden');
-            } else if (section === 'mes') {
-                elements.mesPackagesResults.classList.remove('hidden');
-            }
+        function updateSortIcons(tableId, activeColumn, direction) {
+            const headers = document.querySelectorAll(`#${tableId} th.sortable`);
+            headers.forEach(th => {
+                th.classList.remove('asc', 'desc');
+                // Kiểm tra xem header này có phải cột đang sort không (dựa vào onclick text hoặc logic khác)
+                // Ở đây ta check đơn giản bằng cách clear hết trước
+                if (th.getAttribute('onclick').includes(`'${activeColumn}'`)) {
+                    th.classList.add(direction);
+                }
+            });
         }
 
-        // Loading states
-        function showLoading() {
-            elements.loading.style.display = 'block';
-        }
+        // --- API REQUEST ---
 
-        function hideLoading() {
-            elements.loading.style.display = 'none';
-        }
-
-        // API request function
         async function makeRequest(endpoint, params = {}) {
             const cookieInput = document.getElementById('cookieInput').value.trim();
+            if (!cookieInput) { alert('Vui lòng nhập MES Cookie!'); return null; }
             
-            if (!cookieInput) {
-                alert('Vui lòng nhập MES Cookie!');
-                return null;
-            }
-
-            showLoading();
+            document.getElementById('loading').style.display = 'block';
             
             try {
                 const url = new URL(endpoint, WORKER_URL);
-                Object.keys(params).forEach(key => {
-                    if (params[key]) {
-                        url.searchParams.set(key, params[key]);
-                    }
-                });
+                Object.keys(params).forEach(key => url.searchParams.set(key, params[key]));
 
                 const response = await fetch(url, {
                     method: 'GET',
-                    headers: {
-                        'X-MES-Cookie': cookieInput,
-                        'Content-Type': 'application/json'
-                    }
+                    headers: { 'X-MES-Cookie': cookieInput, 'Content-Type': 'application/json' }
                 });
 
                 const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || `HTTP ${response.status}`);
-                }
-
+                if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
                 return data;
-                
             } catch (error) {
                 alert(`Lỗi: ${error.message}`);
                 return null;
             } finally {
-                hideLoading();
+                document.getElementById('loading').style.display = 'none';
             }
         }
 
-        // Test health check
         async function testHealth() {
             const data = await makeRequest('/health');
-            if (data) {
-                alert(`✅ Worker hoạt động bình thường!\nTimestamp: ${data.timestamp}`);
-            }
+            if (data) alert(`✅ Kết nối Worker tốt!\nTime: ${data.timestamp}`);
         }
 
-        // Get group packages
+        // --- GROUP PACKAGES ---
+
         async function getGroupPackages() {
+            // Reset sort state khi tìm kiếm mới
+            sortState = { column: null, direction: 'asc' };
+            // Clear sort icons
+            document.querySelectorAll('th.sortable').forEach(th => th.classList.remove('asc', 'desc'));
+
             const params = {
                 factory: document.getElementById('factory').value,
                 plnStartDate: document.getElementById('startDate').value.replace(/-/g, ''),
@@ -689,47 +570,38 @@
                 aoNumber: document.getElementById('aoNumber').value,
                 styleInf: document.getElementById('styleCode').value,
                 buyerPO: document.getElementById('buyerPO').value,
-                _search: 'false',
-                rows: '50',
-                page: '1',
-                sidx: 'BuyerPO',
-                sord: 'asc'
+                _search: 'false', rows: '100', page: '1', sidx: 'BuyerPO', sord: 'asc'
             };
 
             const data = await makeRequest('/api/group-packages', params);
-            
             if (data && data.success) {
-                displayGroupPackages(data.data);
+                // Lưu dữ liệu vào biến toàn cục để sort
+                allGroupPackages = data.data.rows || [];
+                displayGroupPackages(allGroupPackages);
             }
         }
 
-        // Display group packages
-        function displayGroupPackages(data) {
-            if (!data.rows || data.rows.length === 0) {
+        function displayGroupPackages(rows) {
+            if (!rows || rows.length === 0) {
                 alert('Không tìm thấy package nào!');
                 return;
             }
-
-            allGroupPackages = data.rows;
-            elements.resultCount.textContent = data.rows.length;
             
-            let tableHTML = '';
-            data.rows.forEach(row => {
-                tableHTML += `
+            document.getElementById('resultCount').textContent = rows.length;
+            let html = '';
+            rows.forEach(row => {
+                html += `
                     <tr>
                         <td>
-                            <span class="clickable" onclick="getMxPackages('${row.PackageGroup}')">
-                                ${row.PackageGroup}
-                            </span>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span class="clickable" onclick="getMxPackages('${row.PackageGroup}')">${row.PackageGroup}</span>
+                                <button class="copy-icon-btn" onclick="copyText('${row.PackageGroup}')" title="Copy">📋</button>
+                            </div>
                         </td>
                         <td>${row.StyleCode || ''}</td>
                         <td>${row.BuyerPO || ''}</td>
-                        <td>${row.TargetQty?.toLocaleString() || 0}</td>
-                        <td>
-                            <span class="status-badge status-${row.Status}">
-                                ${row.StatusName || row.Status}
-                            </span>
-                        </td>
+                        <td class="text-right font-mono">${(row.TargetQty || 0).toLocaleString()}</td>
+                        <td><span class="status-badge status-${row.Status}">${row.StatusName || row.Status}</span></td>
                         <td>${row.MesPlnStartDate || ''}</td>
                         <td>${row.MesPlnEndDate || ''}</td>
                         <td>${row.StyleColorways || ''}</td>
@@ -737,195 +609,136 @@
                 `;
             });
             
-            elements.groupPackagesBody.innerHTML = tableHTML;
-            showSection('group');
-            updateBreadcrumb('group');
-            currentState = 'group';
+            document.getElementById('groupPackagesBody').innerHTML = html;
+            switchSection('group');
         }
 
-        // Get MES packages (đảo lên trước)
+        // --- MES PACKAGES ---
+
         async function getMxPackages(packageGroup) {
             currentPackageGroup = packageGroup;
+            // Reset sort state local
+            sortState = { column: null, direction: 'asc' }; 
             
-            const data = await makeRequest('/api/mes-packages', { 
-                packageGroup: packageGroup,
-                mesPkgType: 'P'
-            });
-            
+            const data = await makeRequest('/api/mes-packages', { packageGroup: packageGroup, mesPkgType: 'P' });
             if (data && data.success) {
-                displayMxPackages(data.data, packageGroup);
+                allMxPackages = data.data;
+                displayMxPackages(allMxPackages, packageGroup);
             }
         }
 
-        // Display MES packages
         function displayMxPackages(data, packageGroup) {
-            allMxPackages = data;
-            elements.currentPackageGroup.textContent = packageGroup;
-            
-            let tableHTML = '';
+            document.getElementById('currentPackageGroup').textContent = packageGroup;
+            let html = '';
             data.forEach(row => {
-                tableHTML += `
+                html += `
                     <tr>
                         <td>
-                            <span class="clickable" onclick="copyMxPackage('${row.MxPackage}')" title="Click để copy">
-                                ${row.MxPackage || ''}
-                            </span>
+                            <div style="display:flex; justify-content:space-between;">
+                                <span>${row.MxPackage || ''}</span>
+                                <button class="copy-icon-btn" onclick="copyText('${row.MxPackage}')">📋</button>
+                            </div>
                         </td>
                         <td>${row.LineName || ''}</td>
-                        <td>
-                            <span class="status-badge status-${row.MxStatus}">
-                                ${row.StatusName || row.MxStatus}
-                            </span>
-                        </td>
+                        <td><span class="status-badge status-${row.MxStatus}">${row.StatusName || row.MxStatus}</span></td>
                         <td>${row.PlnStartDate || ''}</td>
                         <td>${row.PlnEndDate || ''}</td>
-                        <td>${row.FinishedQty?.toLocaleString() || 0}</td>
-                        <td>${row.MxTarget?.toLocaleString() || 0}</td>
-                        <td>${row.WorkingHours || 0}</td>
-                        <td>
-                            <button class="btn-info small-btn" onclick="getProPackages('${row.MxPackage}')">
-                                🔧 Pro Packages
-                            </button>
-                        </td>
+                        <td class="text-right font-mono">${(row.FinishedQty || 0).toLocaleString()}</td>
+                        <td class="text-right font-mono">${(row.MxTarget || 0).toLocaleString()}</td>
+                        <td class="text-right">${row.WorkingHours || 0}</td>
+                        <td><button class="btn-info" style="padding: 4px 10px; font-size: 12px;" onclick="getProPackages('${row.MxPackage}')">Pro Pkg</button></td>
                     </tr>
                 `;
             });
-            
-            elements.mesPackagesBody.innerHTML = tableHTML;
-            showSection('mes');
-            updateBreadcrumb('mes', packageGroup);
-            currentState = 'mes';
+            document.getElementById('mesPackagesBody').innerHTML = html;
+            switchSection('mes');
         }
 
-        // Get pro packages (để trong nút Actions)
+        // --- PRO PACKAGES ---
+
         async function getProPackages(mxPackage) {
-            currentProPackage = mxPackage;
-            
-            const data = await makeRequest('/api/pro-packages', { 
-                packageGroup: currentPackageGroup 
-            });
-            
+            const data = await makeRequest('/api/pro-packages', { packageGroup: currentPackageGroup });
             if (data && data.success) {
-                displayProPackages(data.data, mxPackage);
+                document.getElementById('currentProPackage').textContent = mxPackage;
+                let html = '';
+                data.data.forEach(row => {
+                    html += `
+                        <tr>
+                            <td>${row.PPackage || ''}</td>
+                            <td>${row.SeqNo || ''}</td>
+                            <td class="text-right font-mono">${(row.OrdQty || 0).toLocaleString()}</td>
+                            <td class="text-right font-mono">${(row.PlanQty || 0).toLocaleString()}</td>
+                            <td class="text-right font-mono">${(row.CompletedQty || 0).toLocaleString()}</td>
+                            <td>${row.LINENO || ''}</td>
+                            <td>${row.QCOWeekNo || ''}</td>
+                            <td>${row.Destination || ''}</td>
+                        </tr>
+                    `;
+                });
+                document.getElementById('proPackagesBody').innerHTML = html;
+                switchSection('pro');
             }
         }
 
-        // Display pro packages
-        function displayProPackages(data, mxPackage) {
-            elements.currentProPackage.textContent = mxPackage;
-            
-            let tableHTML = '';
-            data.forEach(row => {
-                tableHTML += `
-                    <tr>
-                        <td>${row.PPackage || ''}</td>
-                        <td>${row.SeqNo || ''}</td>
-                        <td>${row.OrdQty?.toLocaleString() || 0}</td>
-                        <td>${row.PlanQty?.toLocaleString() || 0}</td>
-                        <td>${row.CompletedQty?.toLocaleString() || 0}</td>
-                        <td>${row.LINENO || ''}</td>
-                        <td>${row.QCOWeekNo || ''}</td>
-                        <td>${row.Destination || ''}</td>
-                    </tr>
-                `;
+        // --- UTILS & NAVIGATION ---
+
+        function switchSection(id) {
+            ['groupPackagesResults', 'mesPackagesResults', 'proPackagesResults'].forEach(sid => {
+                document.getElementById(sid).classList.add('hidden');
             });
+            // Nếu không phải trang config, ẩn config đi cho gọn (tùy chọn)
+            // document.getElementById('configSection').classList.add('hidden'); 
             
-            elements.proPackagesBody.innerHTML = tableHTML;
-            showSection('pro');
-            updateBreadcrumb('pro', currentPackageGroup, mxPackage);
-            currentState = 'pro';
+            if (id === 'group') document.getElementById('groupPackagesResults').classList.remove('hidden');
+            if (id === 'mes') document.getElementById('mesPackagesResults').classList.remove('hidden');
+            if (id === 'pro') document.getElementById('proPackagesResults').classList.remove('hidden');
         }
 
-        // Copy functions
-        function copyAllPackageGroups() {
-            const packageGroups = allGroupPackages.map(pkg => pkg.PackageGroup).join('\n');
-            navigator.clipboard.writeText(packageGroups).then(() => {
-                alert(`Đã copy ${allGroupPackages.length} Package Groups!`);
+        function backToGroupPackages() { switchSection('group'); }
+        function backToMxPackages() { switchSection('mes'); }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Có thể thêm toast notification ở đây
             });
+        }
+
+        function copyAllPackageGroups() {
+            if(!allGroupPackages.length) return;
+            const text = allGroupPackages.map(p => p.PackageGroup).join('\n');
+            copyText(text);
+            alert(`Đã copy ${allGroupPackages.length} Package Groups`);
         }
 
         function copyAllMxPackages() {
-            const mxPackages = allMxPackages.map(pkg => pkg.MxPackage).join('\n');
-            navigator.clipboard.writeText(mxPackages).then(() => {
-                alert(`Đã copy ${allMxPackages.length} Mx Packages!`);
-            });
+            if(!allMxPackages.length) return;
+            const text = allMxPackages.map(p => p.MxPackage).join('\n');
+            copyText(text);
+            alert(`Đã copy ${allMxPackages.length} Mx Packages`);
         }
 
-        function copyMxPackage(mxPackage) {
-            navigator.clipboard.writeText(mxPackage).then(() => {
-                alert(`Đã copy: ${mxPackage}`);
-            });
-        }
-
-        // Export CSV functions
         function exportGroupPackagesCSV() {
-            if (allGroupPackages.length === 0) {
-                alert('Không có dữ liệu để xuất!');
-                return;
-            }
-
+            if (!allGroupPackages.length) return alert('Không có dữ liệu!');
             const headers = ['PackageGroup', 'StyleCode', 'BuyerPO', 'TargetQty', 'Status', 'MesPlnStartDate', 'MesPlnEndDate', 'StyleColorways'];
-            const csvContent = [
-                headers.join(','),
-                ...allGroupPackages.map(row => 
-                    headers.map(header => 
-                        `"${(row[header] || '').toString().replace(/"/g, '""')}"`
-                    ).join(',')
-                )
-            ].join('\n');
-
-            downloadCSV(csvContent, 'package-groups.csv');
+            const content = [headers.join(','), ...allGroupPackages.map(r => headers.map(h => `"${(r[h]||'').toString().replace(/"/g, '""')}"`).join(','))].join('\n');
+            downloadCSV(content, 'GroupPackages.csv');
         }
 
         function exportMxPackagesCSV() {
-            if (allMxPackages.length === 0) {
-                alert('Không có dữ liệu để xuất!');
-                return;
-            }
-
-            const headers = ['MxPackage', 'LineName', 'MxStatus', 'StatusName', 'PlnStartDate', 'PlnEndDate', 'FinishedQty', 'MxTarget', 'WorkingHours'];
-            const csvContent = [
-                headers.join(','),
-                ...allMxPackages.map(row => 
-                    headers.map(header => 
-                        `"${(row[header] || '').toString().replace(/"/g, '""')}"`
-                    ).join(',')
-                )
-            ].join('\n');
-
-            downloadCSV(csvContent, `mx-packages-${currentPackageGroup}.csv`);
+            if (!allMxPackages.length) return alert('Không có dữ liệu!');
+            const headers = ['MxPackage', 'LineName', 'MxStatus', 'PlnStartDate', 'PlnEndDate', 'FinishedQty', 'MxTarget'];
+            const content = [headers.join(','), ...allMxPackages.map(r => headers.map(h => `"${(r[h]||'').toString().replace(/"/g, '""')}"`).join(','))].join('\n');
+            downloadCSV(content, `MxPackages-${currentPackageGroup}.csv`);
         }
 
-        function downloadCSV(csvContent, filename) {
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
+        function downloadCSV(content, filename) {
+            const blob = new Blob([content], {type: 'text/csv;charset=utf-8;'});
             const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', filename);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const a = document.createElement('a');
+            a.href = url; a.download = filename; a.click();
         }
 
-        // Navigation functions
-        function backToGroupPackages() {
-            showSection('group');
-            updateBreadcrumb('group');
-            currentState = 'group';
-        }
-
-        function backToMxPackages() {
-            showSection('mes');
-            updateBreadcrumb('mes', currentPackageGroup);
-            currentState = 'mes';
-        }
-
-        // Initialize on page load
-        window.addEventListener('load', function() {
-            initializeDates();
-            updateBreadcrumb('group');
-        });
+        window.addEventListener('load', initializeDates);
     </script>
 </body>
 </html>
