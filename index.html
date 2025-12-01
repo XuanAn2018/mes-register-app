@@ -25,7 +25,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            height: 95vh; /* Cố định chiều cao để scroll nội dung bên trong */
+            height: 95vh;
         }
         
         /* === HEADER === */
@@ -129,39 +129,44 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0; /* Đảm bảo toolbar không bị co lại */
         }
 
         .table-scroll {
             overflow: auto;
             flex: 1;
+            position: relative; /* Quan trọng cho sticky header */
         }
         
         table {
             width: 100%;
-            border-collapse: separate; /* Quan trọng cho sticky header */
+            border-collapse: separate; /* Bắt buộc để sticky header hoạt động tốt */
             border-spacing: 0;
             font-size: 13px;
         }
         
+        /* --- SỬA LỖI STICKY HEADER --- */
         th {
-            background: #f1f2f6;
+            background-color: #f1f2f6; /* Màu nền phải đặc (không trong suốt) */
             color: #2c3e50;
             padding: 12px 10px;
             text-align: left;
             font-weight: 700;
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 100; /* Tăng Z-index để đè lên nội dung khi scroll */
             border-bottom: 2px solid #ddd;
             user-select: none;
+            /* Thêm box-shadow để tạo viền ngăn cách rõ ràng khi scroll */
+            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1); 
         }
 
         /* Style cho cột có thể sắp xếp */
         th.sortable {
             cursor: pointer;
             transition: background 0.2s;
-            padding-right: 25px; /* Chừa chỗ cho icon */
-            position: relative;
+            padding-right: 25px;
+            position: sticky; /* Đảm bảo vẫn giữ sticky */
         }
 
         th.sortable:hover {
@@ -196,6 +201,7 @@
             padding: 10px;
             border-bottom: 1px solid #eee;
             vertical-align: middle;
+            background-color: inherit; /* Để màu nền row hoạt động */
         }
         
         tr:nth-child(even) { background-color: #fcfcfc; }
@@ -295,7 +301,9 @@
                                 <tr>
                                     <th>Package Group</th>
                                     <th>Style Code</th>
-                                    <!-- CẬP NHẬT: Thêm cột Style Name ở đây -->
+                                    <!-- CẬP NHẬT 1: Thêm cột Style Size -->
+                                    <th class="sortable" onclick="sortGroupTable('StyleSize', 'string')">Style Size</th>
+                                    <!-- Style Name -->
                                     <th class="sortable" onclick="sortGroupTable('StyleName', 'string')">Style Name</th>
                                     <th>Buyer PO</th>
                                     <!-- CÁC CỘT CÓ THỂ SẮP XẾP -->
@@ -383,24 +391,20 @@
         
         let currentState = 'group';
         let currentPackageGroup = '';
-        let allGroupPackages = []; // Dữ liệu gốc
-        let allMxPackages = [];    // Dữ liệu gốc
+        let allGroupPackages = []; 
+        let allMxPackages = [];    
         
-        // Trạng thái sắp xếp
         let sortState = {
             column: null,
-            direction: 'asc' // 'asc' hoặc 'desc'
+            direction: 'asc' 
         };
 
         // --- KHỞI TẠO VÀ COOKIE ---
-        
-        // Hàm lưu cookie
         function saveCookie() {
             const cookieVal = document.getElementById('cookieInput').value;
             localStorage.setItem('mes_cookie', cookieVal);
         }
 
-        // Hàm load cookie
         function loadCookie() {
             const savedCookie = localStorage.getItem('mes_cookie');
             if(savedCookie) {
@@ -408,7 +412,6 @@
             }
         }
 
-        // Khởi tạo ngày tháng
         function initializeDates() {
             const today = new Date();
             const startDate = new Date(today);
@@ -427,41 +430,23 @@
                 document.getElementById('endDate').valueAsDate = end;
             });
 
-            // Lắng nghe sự kiện nhập cookie để lưu
             document.getElementById('cookieInput').addEventListener('input', saveCookie);
             loadCookie();
         }
 
-        // --- HÀM XỬ LÝ SẮP XẾP (SORTING) ---
-
-        /**
-         * Hàm sắp xếp chung cho Package Group
-         * @param {string} column Tên trường dữ liệu (key trong object)
-         * @param {string} type Loại dữ liệu: 'string', 'number', 'date'
-         */
+        // --- HÀM XỬ LÝ SẮP XẾP ---
         function sortGroupTable(column, type) {
             handleSort(allGroupPackages, column, type, 'groupPackagesTable', displayGroupPackages);
         }
 
-        /**
-         * Hàm sắp xếp chung cho MES Package
-         */
         function sortMesTable(column, type) {
             handleSort(allMxPackages, column, type, 'mesPackagesTable', (data) => displayMxPackages(data, currentPackageGroup));
         }
 
-        /**
-         * Logic sắp xếp cốt lõi
-         */
         function handleSort(dataArray, column, type, tableId, renderFunction) {
-            // Xác định hướng sắp xếp
             if (sortState.column === column) {
-                // Nếu đang click lại cột cũ, đảo ngược hướng
                 sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
             } else {
-                // Nếu click cột mới
-                // Mặc định Ngày tháng: Mới nhất trước (desc)
-                // Số và Chữ: Bé đến lớn (asc)
                 if (type === 'date') {
                     sortState.direction = 'desc';
                 } else {
@@ -470,15 +455,12 @@
                 sortState.column = column;
             }
 
-            // Cập nhật UI Header (Mũi tên)
             updateSortIcons(tableId, column, sortState.direction);
 
-            // Thực hiện sắp xếp mảng dữ liệu
             dataArray.sort((a, b) => {
                 let valA = a[column];
                 let valB = b[column];
 
-                // Xử lý null/undefined
                 if (valA == null) valA = "";
                 if (valB == null) valB = "";
 
@@ -491,12 +473,11 @@
                         comparison = valA - valB;
                         break;
                     case 'date':
-                        // Giả sử định dạng YYYY-MM-DD hoặc YYYYMMDD
                         const dateA = new Date(valA.toString().replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3'));
                         const dateB = new Date(valB.toString().replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3'));
                         comparison = dateA - dateB;
                         break;
-                    default: // string
+                    default: 
                         valA = valA.toString().toLowerCase();
                         valB = valB.toString().toLowerCase();
                         if (valA < valB) comparison = -1;
@@ -507,7 +488,6 @@
                 return sortState.direction === 'asc' ? comparison : -comparison;
             });
 
-            // Render lại bảng
             renderFunction(dataArray);
         }
 
@@ -515,8 +495,6 @@
             const headers = document.querySelectorAll(`#${tableId} th.sortable`);
             headers.forEach(th => {
                 th.classList.remove('asc', 'desc');
-                // Kiểm tra xem header này có phải cột đang sort không (dựa vào onclick text hoặc logic khác)
-                // Ở đây ta check đơn giản bằng cách clear hết trước
                 if (th.getAttribute('onclick').includes(`'${activeColumn}'`)) {
                     th.classList.add(direction);
                 }
@@ -524,7 +502,6 @@
         }
 
         // --- API REQUEST ---
-
         async function makeRequest(endpoint, params = {}) {
             const cookieInput = document.getElementById('cookieInput').value.trim();
             if (!cookieInput) { alert('Vui lòng nhập MES Cookie!'); return null; }
@@ -557,11 +534,8 @@
         }
 
         // --- GROUP PACKAGES ---
-
         async function getGroupPackages() {
-            // Reset sort state khi tìm kiếm mới
             sortState = { column: null, direction: 'asc' };
-            // Clear sort icons
             document.querySelectorAll('th.sortable').forEach(th => th.classList.remove('asc', 'desc'));
 
             const params = {
@@ -577,7 +551,6 @@
 
             const data = await makeRequest('/api/group-packages', params);
             if (data && data.success) {
-                // Lưu dữ liệu vào biến toàn cục để sort
                 allGroupPackages = data.data.rows || [];
                 displayGroupPackages(allGroupPackages);
             }
@@ -601,7 +574,8 @@
                             </div>
                         </td>
                         <td>${row.StyleCode || ''}</td>
-                        <!-- CẬP NHẬT: Thêm hiển thị StyleName -->
+                        <!-- CẬP NHẬT 2: Hiển thị StyleSize -->
+                        <td>${row.StyleSize || ''}</td>
                         <td>${row.StyleName || ''}</td>
                         <td>${row.BuyerPO || ''}</td>
                         <td class="text-right font-mono">${(row.TargetQty || 0).toLocaleString()}</td>
@@ -618,10 +592,8 @@
         }
 
         // --- MES PACKAGES ---
-
         async function getMxPackages(packageGroup) {
             currentPackageGroup = packageGroup;
-            // Reset sort state local
             sortState = { column: null, direction: 'asc' }; 
             
             const data = await makeRequest('/api/mes-packages', { packageGroup: packageGroup, mesPkgType: 'P' });
@@ -659,7 +631,6 @@
         }
 
         // --- PRO PACKAGES ---
-
         async function getProPackages(mxPackage) {
             const data = await makeRequest('/api/pro-packages', { packageGroup: currentPackageGroup });
             if (data && data.success) {
@@ -685,13 +656,10 @@
         }
 
         // --- UTILS & NAVIGATION ---
-
         function switchSection(id) {
             ['groupPackagesResults', 'mesPackagesResults', 'proPackagesResults'].forEach(sid => {
                 document.getElementById(sid).classList.add('hidden');
             });
-            // Nếu không phải trang config, ẩn config đi cho gọn (tùy chọn)
-            // document.getElementById('configSection').classList.add('hidden'); 
             
             if (id === 'group') document.getElementById('groupPackagesResults').classList.remove('hidden');
             if (id === 'mes') document.getElementById('mesPackagesResults').classList.remove('hidden');
@@ -703,7 +671,7 @@
 
         function copyText(text) {
             navigator.clipboard.writeText(text).then(() => {
-                // Có thể thêm toast notification ở đây
+                // Toast notification here if needed
             });
         }
 
@@ -723,8 +691,8 @@
 
         function exportGroupPackagesCSV() {
             if (!allGroupPackages.length) return alert('Không có dữ liệu!');
-            // CẬP NHẬT: Thêm StyleName vào headers khi xuất CSV
-            const headers = ['PackageGroup', 'StyleCode', 'StyleName', 'BuyerPO', 'TargetQty', 'Status', 'MesPlnStartDate', 'MesPlnEndDate', 'StyleColorways'];
+            // CẬP NHẬT 3: Thêm StyleSize vào Export
+            const headers = ['PackageGroup', 'StyleCode', 'StyleSize', 'StyleName', 'BuyerPO', 'TargetQty', 'Status', 'MesPlnStartDate', 'MesPlnEndDate', 'StyleColorways'];
             const content = [headers.join(','), ...allGroupPackages.map(r => headers.map(h => `"${(r[h]||'').toString().replace(/"/g, '""')}"`).join(','))].join('\n');
             downloadCSV(content, 'GroupPackages.csv');
         }
