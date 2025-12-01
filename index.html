@@ -295,6 +295,8 @@
                                 <tr>
                                     <th>Package Group</th>
                                     <th>Style Code</th>
+                                    <!-- CẬP NHẬT: Thêm cột Style Name ở đây -->
+                                    <th class="sortable" onclick="sortGroupTable('StyleName', 'string')">Style Name</th>
                                     <th>Buyer PO</th>
                                     <!-- CÁC CỘT CÓ THỂ SẮP XẾP -->
                                     <th class="sortable text-right" onclick="sortGroupTable('TargetQty', 'number')">Target Qty</th>
@@ -599,6 +601,8 @@
                             </div>
                         </td>
                         <td>${row.StyleCode || ''}</td>
+                        <!-- CẬP NHẬT: Thêm hiển thị StyleName -->
+                        <td>${row.StyleName || ''}</td>
                         <td>${row.BuyerPO || ''}</td>
                         <td class="text-right font-mono">${(row.TargetQty || 0).toLocaleString()}</td>
                         <td><span class="status-badge status-${row.Status}">${row.StatusName || row.Status}</span></td>
@@ -719,7 +723,8 @@
 
         function exportGroupPackagesCSV() {
             if (!allGroupPackages.length) return alert('Không có dữ liệu!');
-            const headers = ['PackageGroup', 'StyleCode', 'BuyerPO', 'TargetQty', 'Status', 'MesPlnStartDate', 'MesPlnEndDate', 'StyleColorways'];
+            // CẬP NHẬT: Thêm StyleName vào headers khi xuất CSV
+            const headers = ['PackageGroup', 'StyleCode', 'StyleName', 'BuyerPO', 'TargetQty', 'Status', 'MesPlnStartDate', 'MesPlnEndDate', 'StyleColorways'];
             const content = [headers.join(','), ...allGroupPackages.map(r => headers.map(h => `"${(r[h]||'').toString().replace(/"/g, '""')}"`).join(','))].join('\n');
             downloadCSV(content, 'GroupPackages.csv');
         }
