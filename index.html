@@ -570,7 +570,7 @@
                         <td>
                             <div style="display:flex; justify-content:space-between; align-items:center;">
                                 <span class="clickable" onclick="getMxPackages('${row.PackageGroup}')">${row.PackageGroup}</span>
-                                <button class="copy-icon-btn" onclick="copyText('${row.PackageGroup}')" title="Copy">📋</button>
+                                <button class="copy-icon-btn" onclick="copyText('${row.PackageGroup}', true)" title="Copy">📋</button>
                             </div>
                         </td>
                         <td>${row.StyleCode || ''}</td>
@@ -612,7 +612,7 @@
                         <td>
                             <div style="display:flex; justify-content:space-between;">
                                 <span>${row.MxPackage || ''}</span>
-                                <button class="copy-icon-btn" onclick="copyText('${row.MxPackage}')">📋</button>
+                                <button class="copy-icon-btn" onclick="copyText('${row.MxPackage}', true)">📋</button>
                             </div>
                         </td>
                         <td>${row.LineName || ''}</td>
@@ -669,23 +669,57 @@
         function backToGroupPackages() { switchSection('group'); }
         function backToMxPackages() { switchSection('mes'); }
 
-        function copyText(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                // Toast notification here if needed
-            });
+        // --- CẬP NHẬT: HÀM COPY ROBUST (Hoạt động mọi nơi) ---
+        function copyText(text, showToast = false) {
+            // Cách 1: Thử dùng API hiện đại
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    if(showToast) alert('Đã copy!'); // Hoặc dùng toast nhẹ nhàng hơn nếu muốn
+                }, () => {
+                    // Nếu thất bại thì dùng fallback
+                    fallbackCopy(text, showToast);
+                });
+            } else {
+                // Cách 2: Fallback cho HTTP/File
+                fallbackCopy(text, showToast);
+            }
+        }
+
+        function fallbackCopy(text, showToast) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            
+            // Đảm bảo textarea không hiển thị lung tung
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if(successful && showToast) alert('Đã copy!');
+            } catch (err) {
+                console.error('Copy thất bại', err);
+                alert('Không thể copy tự động. Vui lòng chọn và copy thủ công.');
+            }
+            
+            document.body.removeChild(textArea);
         }
 
         function copyAllPackageGroups() {
             if(!allGroupPackages.length) return;
             const text = allGroupPackages.map(p => p.PackageGroup).join('\n');
-            copyText(text);
-            alert(`Đã copy ${allGroupPackages.length} Package Groups`);
+            copyText(text, false); // Copy trước
+            alert(`Đã copy ${allGroupPackages.length} Package Groups`); // Thông báo sau
         }
 
         function copyAllMxPackages() {
             if(!allMxPackages.length) return;
             const text = allMxPackages.map(p => p.MxPackage).join('\n');
-            copyText(text);
+            copyText(text, false);
             alert(`Đã copy ${allMxPackages.length} Mx Packages`);
         }
 
